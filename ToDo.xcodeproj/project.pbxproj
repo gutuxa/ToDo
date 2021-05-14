@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B305569F264E814400943208 /* AlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B305569E264E814400943208 /* AlertController.swift */; };
 		B35B5FC5264A9D42006541BD /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35B5FC4264A9D42006541BD /* AppDelegate.swift */; };
 		B35B5FC9264A9D42006541BD /* TaskListTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35B5FC8264A9D42006541BD /* TaskListTableViewController.swift */; };
 		B35B5FCF264A9D42006541BD /* ToDo.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = B35B5FCD264A9D42006541BD /* ToDo.xcdatamodeld */; };
@@ -16,6 +17,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B305569E264E814400943208 /* AlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertController.swift; sourceTree = "<group>"; };
 		B35B5FC1264A9D42006541BD /* ToDo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B35B5FC4264A9D42006541BD /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B35B5FC8264A9D42006541BD /* TaskListTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListTableViewController.swift; sourceTree = "<group>"; };
@@ -85,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				B35B5FC8264A9D42006541BD /* TaskListTableViewController.swift */,
+				B305569E264E814400943208 /* AlertController.swift */,
 			);
 			path = ViewControllers;
 			sourceTree = "<group>";
@@ -177,6 +180,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B35B5FC9264A9D42006541BD /* TaskListTableViewController.swift in Sources */,
+				B305569F264E814400943208 /* AlertController.swift in Sources */,
 				B35B5FC5264A9D42006541BD /* AppDelegate.swift in Sources */,
 				B35B5FCF264A9D42006541BD /* ToDo.xcdatamodeld in Sources */,
 				B35B5FE9264B03CC006541BD /* StorageManager.swift in Sources */,

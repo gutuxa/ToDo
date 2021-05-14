@@ -10,89 +10,56 @@ import UIKit
 class TaskListTableViewController: UITableViewController {
     
     private let cellID = "cell"
-    private var tasks: [Task] = []
+    private let bgColor = UIColor(red: 33/255, green: 33/255, blue: 33/255, alpha: 1)
+    private var tasks: [Task] = TaskData.shared.fetch()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = UIColor(red: 33/255, green: 33/255, blue: 33/255, alpha: 1)
+        view.backgroundColor = bgColor
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellID)
         setupNavigationBar()
-        tasks = TaskData.shared.fetch()
     }
     
     private func setupNavigationBar() {
         title = "Task List"
         navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.navigationBar.tintColor = .white
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
-            action: #selector(add)
+            action: #selector(create)
         )
-            
-        navigationController?.navigationBar.tintColor = .white
     }
     
-    @objc private func add() {
-        showAlert(with: "New Task", for: nil)
-    }
-    
-    private func showAlert(with title: String, for row: Int?) {
-        let alert = UIAlertController(
-            title: title,
-            message: "What do you want to do?",
-            preferredStyle: .alert
-        )
-        
-        let saveAction = UIAlertAction(title: "Save", style: .default) { _ in
-            guard let taskTitle = alert.textFields?.first?.text, !taskTitle.isEmpty else { return }
-            if let row = row {
-                self.update(at: row, with: taskTitle)
-            } else {
-                self.create(with: taskTitle)
+    @objc private func create() {
+        showAlert() { taskTitle in
+            TaskData.shared.create(with: taskTitle) { task in
+                self.tasks.append(task)
+                let indexPath = IndexPath(row: self.tasks.count - 1, section: 0)
+                self.tableView.insertRows(at: [indexPath], with: .automatic)
             }
         }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
-        
-        alert.addAction(saveAction)
-        alert.addAction(cancelAction)
-        
-        alert.addTextField { textField in
-            textField.placeholder = "New Task"
-            
-            if let row = row {
-                textField.text = self.tasks[row].title
-            }
-        }
-        
-        present(alert, animated: true)
-    }
-    
-    private func create(with title: String) {
-        guard let task = TaskData.shared.create(with: title) else { return }
-        tasks.append(task)
-        let indexPath = IndexPath(row: tasks.count - 1, section: 0)
-        tableView.insertRows(at: [indexPath], with: .automatic)
-    }
-
-    private func update(at row: Int, with title: String) {
-        let task = tasks[row]
-        
-        guard TaskData.shared.update(task, with: title) else { return }
-        
-        let indexPath = IndexPath(row: row, section: 0)
-        task.title = title
-        tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
     private func delete(at row: Int) {
         let task = tasks.remove(at: row)
         
-        guard TaskData.shared.delete(task) else { return }
+        TaskData.shared.delete(task)
         
         let indexPath = IndexPath(row: row, section: 0)
         tableView.deleteRows(at: [indexPath], with: .automatic)
+    }
+    
+    private func showAlert(for task: Task? = nil, completion: @escaping (String) -> Void) {
+        let alert = AlertController(
+            title: task != nil ? "Edit Task" : "New Task",
+            message: "What do you want to do?",
+            preferredStyle: .alert
+        )
+        
+        alert.action(for: task, completion: completion)
+        present(alert, animated: true)
     }
 }
 
@@ -107,7 +74,7 @@ extension TaskListTableViewController {
         var content = cell.defaultContentConfiguration()
         content.text = tasks[indexPath.row].title
         cell.contentConfiguration = content
-        cell.backgroundColor = .clear
+        cell.backgroundColor = bgColor
         return cell
     }
 }
@@ -116,11 +83,13 @@ extension TaskListTableViewController {
 extension TaskListTableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        showAlert(with: "Edit Task", for: indexPath.row)
-    }
-    
-    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        true
+        
+        let task = tasks[indexPath.row]
+        
+        showAlert(for: task) { taskTitle in
+            TaskData.shared.update(task, with: taskTitle)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
     }
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {

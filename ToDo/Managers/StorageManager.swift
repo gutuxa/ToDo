@@ -10,7 +10,7 @@ import CoreData
 class TaskData {
     static let shared = TaskData()
     
-    lazy var persistentContainer: NSPersistentContainer = {
+    private let persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "ToDo")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -20,20 +20,8 @@ class TaskData {
         return container
     }()
     
-    lazy var context: NSManagedObjectContext = {
-        return self.persistentContainer.viewContext
-    }()
-
-    func saveContext () {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
+    private var context: NSManagedObjectContext {
+        persistentContainer.viewContext
     }
     
     private init() {}
@@ -50,36 +38,34 @@ class TaskData {
         }
     }
     
-    func create(with title: String) -> Task? {
-        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Task", in: context) else { return nil }
-        guard let task = NSManagedObject(entity: entityDescription, insertInto: context) as? Task else { return nil }
+    func create(with title: String, completion: (Task) -> Void) {
+        guard let entityDescription = NSEntityDescription.entity(forEntityName: "Task", in: context) else { return }
+        guard let task = NSManagedObject(entity: entityDescription, insertInto: context) as? Task else { return }
         
         task.title = title
-        let created = commitChanges()
-        
-        return created ? task : nil
+        saveContext()
+        completion(task)
     }
     
-    func update(_ task: Task, with title: String) -> Bool {
-        task.setValue(title, forKey: "title")
-        return commitChanges()
+    func update(_ task: Task, with title: String) {
+        task.title = title
+        saveContext()
     }
     
-    func delete(_ task: Task) -> Bool {
+    func delete(_ task: Task) {
         context.delete(task)
-        return commitChanges()
+        saveContext()
     }
     
-    private func commitChanges() -> Bool {
+    func saveContext() {
+        let context = persistentContainer.viewContext
         if context.hasChanges {
             do {
                 try context.save()
-                return true
-            } catch let error {
-                print(error.localizedDescription)
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
         }
-        
-        return false
     }
 }
