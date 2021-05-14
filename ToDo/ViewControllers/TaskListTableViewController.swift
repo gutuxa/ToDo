@@ -42,15 +42,6 @@ class TaskListTableViewController: UITableViewController {
         }
     }
     
-    private func delete(at row: Int) {
-        let task = tasks.remove(at: row)
-        
-        TaskData.shared.delete(task)
-        
-        let indexPath = IndexPath(row: row, section: 0)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
-    }
-    
     private func showAlert(for task: Task? = nil, completion: @escaping (String) -> Void) {
         let alert = AlertController(
             title: task != nil ? "Edit Task" : "New Task",
@@ -94,7 +85,10 @@ extension TaskListTableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == .delete) {
-            delete(at: indexPath.row)
+            let task = tasks.remove(at: indexPath.row)
+
+            TaskData.shared.delete(task)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
 }
